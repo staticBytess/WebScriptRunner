@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Files</title>
+</head>
+
+<body>
+    <h1>Files</h1>
+    <form method="POST">
+        {% for file in files %}
+        <label>        
+            <input type="checkbox" id="{{file}}" name=selected_files value="{{file}}"/>
+            {{file}}
+        </label><br>
+        {% endfor %}
+        <button type="submit" name="action" value="delete">Delete</button>
+    </form>
+</body>
+
+</html>
