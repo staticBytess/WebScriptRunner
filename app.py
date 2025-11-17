@@ -10,13 +10,13 @@ def hello_world():
     path = os.listdir(path=base_path)
 
     if request.method == 'POST':
-        files = request.form.getlist('selected_files')
-        del_files(files)
-        return redirect(url_for('hello_world'))
+        if 'delete' in request.form:
+            files = request.form.getlist('selected_files')
+            del_files(files)
+            return redirect(url_for('hello_world'))
+            
+    return render_template('index.html', files=path)
 
-    return render_template('index.html', files=path) 
-
- 
 @app.route("/logs")
 def show_logs():
     with open("logs.txt", "r") as file:
