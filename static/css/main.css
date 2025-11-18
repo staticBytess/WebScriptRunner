@@ -18,6 +18,12 @@ h1 {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 8px;
+    
+}
+
+.file {
+    overflow-y: scroll;
+    max-height: 80vh;
 }
 
 .logs {
@@ -38,4 +44,82 @@ h1 {
 .modal-content {
     max-height: 70vh;
     overflow-y: auto;
+}
+
+input[type="checkbox"] {
+    /* Hides the element completely, including from screen readers and tab navigation */
+    display: none;
+}
+
+input[type="checkbox"]:checked+span {
+    background-color: rgb(47, 116, 172);
+    color: white;
+    border: black;
+    border-radius: 15px;
+    border-width: 2px;
+    padding: 5px;
+    min-width: 320px;
+}
+
+
+label:has(input[type="checkbox"]:checked) {
+    background-color: rgb(47, 116, 172);
+    color: white;
+    border-radius: 15px;
+    border-width: 2px;
+    min-width: 320px;
+    padding: 5px;
+}
+
+label:hover {
+    background-color: rgb(46, 185, 209);
+    color: white;
+    border-radius: 15px;
+    border-width: 2px;
+    min-width: 320px;
+}
+
+
+
+label {
+    display: block;
+    margin: 3px 0;
+    min-width: 300px;
+    font-size: 20px;
+    border: black;
+    border-radius: 15px;
+    border-width: 2px;
+    padding: 5px;
+}
+
+#buttons{
+    display: flex;
+    gap: 20vw;
+    margin-bottom: 30px;
+}
+
+.green {
+    background-color: rgb(67, 214, 67);
+}
+
+.red{
+    background-color: rgb(126, 19, 19);
+    color: white;
+}
+
+button{
+    font-size: 15px;
+}
+
+.unselectable-text {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+label.unselectable-text {
+    user-select: none;
 }

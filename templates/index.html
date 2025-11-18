@@ -17,15 +17,19 @@
         <!-- Left side: Files -->
         <div class="files">
             <form method="POST">
-                {% for file in files %}
-                <label>
-                    <input type="checkbox" name="selected_files" value="{{file}}">
-                    {{file}}
-                </label><br>
-                {% endfor %}
-
-                <button type="submit" name="delete" value="delete">Delete</button>
-                <button type="button" id="process_button">Process</button>
+                <div id="buttons">
+                    <button type="button" id="process_button" class="green">Process</button>
+                    <button type="submit" name="delete" value="delete" class="red">Delete</button>
+                </div>
+                <div class="file">
+                    {% for file in files %}
+                    <label>
+                        <input type="checkbox" name="selected_files" class="unselectable-text" value="{{file}}">
+                        <span class="unselectable-text">{{file}}</span>
+                    </label><br>
+                    {% endfor %}
+                    </div>
+                
 
                 <!-- Modal -->
                 <div id="myModal" class="modal">
