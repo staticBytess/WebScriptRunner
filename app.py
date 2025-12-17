@@ -12,7 +12,11 @@ app.secret_key = config["my_key"]
 STARTING_PATH = config["starting_path"]
 SELECTION_FILE = config["selection_file"]
 LOG_PATH = config["log_path"]
-ALLOWED_ROOT_FOLDERS = set(config.get("allowed_root_folders", [])) # use this to only show folders at root.
+
+ # Purpose: Boolen to decide whether only specific folders should be shown in root. False if all root files/folders are okay to display.
+ONLY_SHOW_ROOT_FOLDERS = False
+if ONLY_SHOW_ROOT_FOLDERS:
+    ALLOWED_ROOT_FOLDERS = set(config.get("allowed_root_folders", []))
 
 
 
@@ -93,7 +97,7 @@ def index(req_path):
         
     if os.path.isdir(abs_path):
         entries = os.listdir(abs_path)
-        if abs_path.rstrip("\\/") == os.path.abspath(STARTING_PATH).rstrip("\\/"):
+        if ONLY_SHOW_ROOT_FOLDERS and abs_path.rstrip("\\/") == os.path.abspath(STARTING_PATH).rstrip("\\/"):
             entries = [
                 e for e in entries
                 if e in ALLOWED_ROOT_FOLDERS
