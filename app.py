@@ -12,6 +12,8 @@ app.secret_key = config["my_key"]
 STARTING_PATH = config["starting_path"]
 SELECTION_FILE = config["selection_file"]
 LOG_PATH = config["log_path"]
+ALLOWED_ROOT_FOLDERS = set(config.get("allowed_root_folders", [])) # use this to only show folders at root.
+
 
 
 # SELECTION FILE HELPERS
@@ -85,11 +87,24 @@ def index(req_path):
     if not abs_path.startswith(os.path.abspath(STARTING_PATH)):
         return "Access denied", 403
 
+    # Filter only at root (STARTING_PATH)
+   
+
+        
     if os.path.isdir(abs_path):
         entries = os.listdir(abs_path)
+        if abs_path.rstrip("\\/") == os.path.abspath(STARTING_PATH).rstrip("\\/"):
+            entries = [
+                e for e in entries
+                if e in ALLOWED_ROOT_FOLDERS
+                and os.path.isdir(os.path.join(abs_path, e))
+            ]
+
+       
         files = fileTypes(entries, abs_path)
     else:
         return f"{abs_path} is not a directory", 404
+
 
     if request.method == 'POST':
 
