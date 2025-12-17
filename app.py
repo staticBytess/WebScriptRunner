@@ -103,8 +103,6 @@ def index(req_path):
                 if e in ALLOWED_ROOT_FOLDERS
                 and os.path.isdir(os.path.join(abs_path, e))
             ]
-
-       
         files = fileTypes(entries, abs_path)
     else:
         return f"{abs_path} is not a directory", 404
@@ -116,14 +114,21 @@ def index(req_path):
             clear_selected_files()
             return redirect(url_for('index', req_path=req_path))
 
-        if 'delete' in request.form:
+        # IMPORTANT: Check for delete FIRST and only if the delete input is explicitly set
+        if 'delete' in request.form and request.form.get('delete') == 'delete':
             delete_targets = get_selected_files()
             if delete_targets:
                 del_files(delete_targets)
                 clear_selected_files()
             return redirect(url_for('index', req_path=req_path))
 
+        # Process should only run if delete is NOT set
         if 'process' in request.form:
+            # Double-check that we're not also deleting
+            if request.form.get('delete') == 'delete':
+                write_log("ERROR: Both process and delete were triggered. Ignoring request.\n")
+                return redirect(url_for('index', req_path=req_path))
+                
             process_targets = get_selected_files()
             selected_script = request.form.get("selected_script", "").strip()
             
@@ -136,16 +141,20 @@ def index(req_path):
                 return redirect(url_for('index', req_path=req_path))
             
             try:
+                write_log(f"\n{'='*50}\nStarting script: {selected_script}\nFiles to process: {len(process_targets)}\n{'='*50}\n")
+                
                 module_name = selected_script.replace(".py", "")
                 mod = importlib.import_module(f"scripts.{module_name}")
 
                 if hasattr(mod, "main"):
                     mod.main(list(process_targets))
-                    write_log(f"Successfully processed {len(process_targets)} files with {selected_script}\n")
+                    write_log(f"✓ Successfully processed {len(process_targets)} files with {selected_script}\n")
                 else:
-                    write_log(f"Script '{selected_script}' does NOT define main()\n")
+                    write_log(f"✗ Script '{selected_script}' does NOT define main()\n")
             except Exception as e:
-                write_log(f"Error running script '{selected_script}': {str(e)}\n")
+                write_log(f"✗ Error running script '{selected_script}': {str(e)}\n")
+                import traceback
+                write_log(traceback.format_exc())
 
             clear_selected_files()
             return redirect(url_for('index', req_path=req_path))
