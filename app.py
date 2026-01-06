@@ -5,16 +5,19 @@ import importlib
 
 app = Flask(__name__)
 
-with open("config.local.json") as f:
+basedir = os.path.abspath(os.path.dirname(__file__))
+config_path = os.path.join(basedir, "config.local.json")
+
+with open(config_path) as f:
     config = json.load(f)
 
 app.secret_key = config["my_key"]
 STARTING_PATH = config["starting_path"]
 SELECTION_FILE = config["selection_file"]
 LOG_PATH = config["log_path"]
+ONLY_SHOW_ROOT_FOLDERS = config["root_bool"]
 
  # Purpose: Boolen to decide whether only specific folders should be shown in root. False if all root files/folders are okay to display.
-ONLY_SHOW_ROOT_FOLDERS = False
 if ONLY_SHOW_ROOT_FOLDERS:
     ALLOWED_ROOT_FOLDERS = set(config.get("allowed_root_folders", []))
 
@@ -165,7 +168,7 @@ def index(req_path):
     selected = get_selected_files()
 
     return render_template(
-        "test.html",
+        "index.html",
         files=files,
         current_path=req_path,
         selected=list(selected),
