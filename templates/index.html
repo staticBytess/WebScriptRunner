@@ -5,10 +5,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web File Manager</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/test_page.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/logs.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/selected_list.css') }}">
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='assets/logo.png') }}">
     <script>window.SELECTED_FILES = {{ selected | tojson }};</script>
     <script src="{{ url_for('static', filename='js/index.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/logs.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='js/modal.js') }}" defer></script>
 </head>
 
 <body>

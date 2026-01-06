@@ -28,4 +28,4 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
-}); // <-- Make sure to close the new listener here
+});
