@@ -1,4 +1,4 @@
-![](https://github.com/staticBytess/Flask-Remote-File-Manager/blob/main/static/assets/demo.png)
+![](app/static/assets/demo.png)
 
 # Flask Remote File Manager
 
