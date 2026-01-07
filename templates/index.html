@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Web File Manager</title>
+    <title>Remote File Manager</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/modal.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/logs.css') }}">
@@ -18,7 +18,7 @@
 
 <body>
     <div class="main-container">
-        <h1>Web File Manager</h1>
+        <h1>Remote File Manager</h1>
 
         <div class="left-section">
             <!-- Breadcrumb Navigation -->
@@ -71,18 +71,30 @@
                             in selected %}checked{% endif %}>
                         {% endif %}
 
-                        {% if file.is_dir %}
-                        <div class="file-icon">📁</div>
+                        <div class="file-icon">
+                            {% if file.file_type == "folder" %}
+                            📁
+                            {% elif file.file_type == "img" %}
+                            <img src="{{ url_for('static', filename='assets/img.png') }}" alt="Movie" style="width: 75px;">
+                            {% elif file.file_type == "vid" %}
+                            <img src="{{ url_for('static', filename='assets/vid.png') }}" alt="Movie" style="width: 75px;">
+                            {% elif file.file_type == "txt" %}
+                            <img src="{{ url_for('static', filename='assets/txt.png') }}" alt="Movie" style="width: 75px;">
+                            {% else %}
+                            📄
+                            {% endif %}
+                        </div>
+
                         <div class="file-name">
+                            {% if file.file_type == "folder" %}
                             <a href="{{ url_for('index', req_path=(current_path + '/' + file.name) if current_path else file.name) }}"
                                 onclick="event.stopPropagation()">
                                 {{ file.name }}
                             </a>
+                            {% else %}
+                            {{ file.name }}
+                            {% endif %}
                         </div>
-                        {% else %}
-                        <div class="file-icon">📄</div>
-                        <div class="file-name">{{ file.name }}</div>
-                        {% endif %}
                     </label>
                     {% endfor %}
                 </div>
