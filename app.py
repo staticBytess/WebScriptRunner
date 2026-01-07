@@ -2,9 +2,11 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 import os
 import json
 import importlib
+import mimetypes
 
+
+#Set Up
 app = Flask(__name__)
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 config_path = os.path.join(basedir, "config.local.json")
 
@@ -17,10 +19,11 @@ SELECTION_FILE = config["selection_file"]
 LOG_PATH = config["log_path"]
 ONLY_SHOW_ROOT_FOLDERS = config["root_bool"]
 
- # Purpose: Boolen to decide whether only specific folders should be shown in root. False if all root files/folders are okay to display.
+mimetypes.add_type('video/x-matroska', '.mkv')
+
+# Boolen to decide whether only specific folders should be shown in root. False if all root files/folders are okay to display.
 if ONLY_SHOW_ROOT_FOLDERS:
     ALLOWED_ROOT_FOLDERS = set(config.get("allowed_root_folders", []))
-
 
 
 # SELECTION FILE HELPERS
@@ -95,9 +98,6 @@ def index(req_path):
         return "Access denied", 403
 
     # Filter only at root (STARTING_PATH)
-   
-
-        
     if os.path.isdir(abs_path):
         entries = os.listdir(abs_path)
         if ONLY_SHOW_ROOT_FOLDERS and abs_path.rstrip("\\/") == os.path.abspath(STARTING_PATH).rstrip("\\/"):
@@ -223,15 +223,32 @@ def write_log(msg):
 def fileTypes(entries, path):
     files = []
     for entry in entries:
+        if entry.lower().endswith('.parts'):
+            continue
         full_path = os.path.join(path, entry)
         files.append({
             "name": entry,
-            "is_dir": os.path.isdir(full_path),
-            "full_path": full_path
+            "file_type": identify_file(full_path),
+            "full_path": full_path,
+            "is_dir": os.path.isdir(full_path)
         })
 
     files.sort(key=lambda x: (not x['is_dir'], x['name'].lower()))
     return files
+
+
+def identify_file(path):
+    if os.path.isdir(path):
+        return "folder"
+    mime_type, _ = mimetypes.guess_type(path)
+    if mime_type:
+        if mime_type.startswith('image'):
+            return "img"
+        elif mime_type.startswith('video'):
+            return "vid"
+        elif mime_type.startswith('text'):
+            return "txt"
+    return "unknown"
 
 
 def get_available_scripts():
@@ -246,6 +263,7 @@ def get_available_scripts():
             scripts.append(file)
     
     return sorted(scripts)
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
