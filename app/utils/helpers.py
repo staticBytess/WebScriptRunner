@@ -1,6 +1,8 @@
 import os
 import mimetypes
 from flask import current_app
+from pathlib import Path
+import re
 
 mimetypes.add_type('video/x-matroska', '.mkv')
 
@@ -90,6 +92,7 @@ def clear_selected_files():
     if os.path.exists(current_app.config["SELECTION_FILE"]):
         os.remove(current_app.config["SELECTION_FILE"])
 
+
 def get_available_scripts():
     # Use .get() to prevent KeyError. If missing, it returns None.
     scripts_path = current_app.config.get("scripts_folder")
@@ -110,3 +113,20 @@ def write_log(msg):
     os.makedirs("scripts", exist_ok=True)
     with open(current_app.config["LOG_PATH"], "a", encoding="utf-8") as log:
         log.write(msg)
+
+
+def create_folder(fname, path):
+    if fname:
+        # Remove any unsafe characters
+        fname = re.sub(r'[\/\\:*?"<>|]', '_', fname)
+        fname = fname.strip('. ')  # Remove leading/trailing dots and spaces
+        
+        if fname:  # Make sure it's not empty after sanitization
+            new_folder_path = Path(os.path.join(path, fname))
+            if new_folder_path.exists():
+                write_log(f"Folder '{fname}' already exists")
+            else:
+                new_folder_path.mkdir(parents=True, exist_ok=True)
+                write_log(f"Created new folder: {fname}")
+        else:
+            write_log("Invalid folder name provided")

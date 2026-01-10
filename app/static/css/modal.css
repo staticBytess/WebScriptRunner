@@ -58,3 +58,35 @@
     margin-bottom: 10px;
     width: 10%;
 }
+
+.modal-button{
+    max-width: 100px;
+    min-width: 90px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+/* Folder name input styled like a label */
+.folder-input {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    border-radius: 8px;
+    border: 2px solid #e0e0e0;
+    font-size: 16px;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.folder-input:hover {
+    background: #f5f5f5;
+    border-color: #c0c0c0;
+}
+
+.folder-input:focus {
+    outline: none;
+    background: #fff;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+}

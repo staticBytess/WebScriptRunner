@@ -48,6 +48,7 @@
                     <button type="button" id="select_all_button" class="purple">Select All in Directory</button>
                     <button type="button" id="view_selected_button" class="orange">View Selected</button>
                     <button type="submit" name="clear_selection" value="clear" class="blue">Clear Selection</button>
+                    <button type="submit" name="create_folder" id="create_folder" value="create_folder" class="blue">Create New Folder</button>
                     <button type="button" id="delete_button" class="red">Delete Selected</button>
                 </div>
 
@@ -110,9 +111,20 @@
                             {{script}}
                         </label>
                         {% endfor %}
-                        <button type="submit" name="process" value="process" class="green">Run</button>
+                        <button type="submit" name="process" value="process" class="green modal-button">Run</button>
                     </div>
                 </div>
+
+                <!-- Create Folder Modal -->
+                <div id="createFolderModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close" id="closeFolderModalBtn">&times;</span>
+                        <h2 style="margin-bottom: 20px;">Enter Folder Name</h2>
+                        <input type="text" id="folder_name_input" placeholder="New Folder" class="folder-input">
+                        <button type="button" id="confirmCreateFolder" class="green modal-button">Create</button>
+                    </div>
+                </div>
+                <input type="hidden" name="folder_name" id="folder_name_hidden">
 
                 <!-- View Selected Modal -->
                 <div id="viewSelectedModal" class="modal">

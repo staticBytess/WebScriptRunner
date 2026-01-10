@@ -107,19 +107,19 @@ def index(req_path):
 
             clear_selected_files()
             return redirect(url_for('main.index', req_path=req_path))
+        
+        if 'create_folder' in request.form:
+            folder_name = request.form.get('folder_name', '').strip()
+            create_folder(folder_name, abs_path)
+            return redirect(url_for('main.index', req_path=req_path))
+
 
         return redirect(url_for('main.index', req_path=req_path))
 
     scripts = get_available_scripts()
     selected = get_selected_files()
 
-    return render_template(
-        "index.html",
-        files=files,
-        current_path=req_path,
-        selected=list(selected),
-        scripts=scripts
-    )
+    return render_template("index.html", files=files, current_path=req_path, selected=list(selected), scripts=scripts)
 
 
 # LOGS

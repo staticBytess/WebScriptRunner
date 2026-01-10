@@ -149,7 +149,84 @@ deleteButton.addEventListener('click', () => {
     }
 });
 
-// Process Modal functionality
+
+
+// New Folder Modal ----------------------------
+const newFolderModal = document.getElementById('createFolderModal');
+const folderBtn = document.getElementById('create_folder');
+const closeFolderBtn = document.querySelector('#createFolderModal .close'); // More specific selector
+const folderNameInput = document.getElementById('folder_name_input');
+const confirmCreateBtn = document.getElementById('confirmCreateFolder');
+
+// Open modal when button clicked
+folderBtn.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevent form submission
+    folderNameInput.value = ''; // Clear input
+    newFolderModal.style.display = 'block';
+});
+
+// Close modal
+closeFolderBtn.addEventListener('click', () => {
+    newFolderModal.style.display = 'none';
+});
+
+// Close modal when clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === newFolderModal) {
+        newFolderModal.style.display = 'none';
+    }
+});
+
+// Sanitize folder name - remove unsafe characters
+function sanitizeFolderName(name) {
+    // Remove leading/trailing whitespace
+    name = name.trim();
+
+    // Replace unsafe characters with underscores
+    // Disallow: / \ : * ? " < > |
+    name = name.replace(/[\/\\:*?"<>|]/g, '_');
+
+    // Remove leading/trailing dots (hidden files or current/parent dir)
+    name = name.replace(/^\.+|\.+$/g, '');
+
+    return name;
+}
+
+
+// Confirm and create folder
+confirmCreateBtn.addEventListener('click', () => {
+    let folderName = folderNameInput.value;
+
+    if (!folderName || folderName.trim() === '') {
+        alert('Please enter a folder name');
+        return;
+    }
+
+    // Sanitize the input
+    folderName = sanitizeFolderName(folderName);
+
+    if (!folderName || folderName === '') {
+        alert('Invalid folder name. Please use only valid characters.');
+        return;
+    }
+
+    // Set the hidden input value and submit
+    document.getElementById('folder_name_hidden').value = folderName;
+
+    // Create a hidden submit button specifically for folder creation
+    const hiddenSubmit = document.createElement('input');
+    hiddenSubmit.type = 'hidden';
+    hiddenSubmit.name = 'create_folder';
+    hiddenSubmit.value = 'create_folder';
+    document.getElementById('fileForm').appendChild(hiddenSubmit);
+
+    document.getElementById('fileForm').submit();
+    newFolderModal.style.display = 'none';
+});
+
+
+
+// Process Modal functionality -----------------------------------------
 const modal = document.getElementById('myModal');
 const processBtn = document.getElementById('process_button');
 const closeBtn = document.querySelector('.close');
@@ -179,6 +256,7 @@ window.addEventListener('click', (e) => {
     }
 });
 
+// Handles Data Submission
 // ALSO: Add a form submit handler to ensure process doesn't include delete
 document.getElementById('fileForm').addEventListener('submit', (e) => {
     // If processing, make sure delete is cleared
