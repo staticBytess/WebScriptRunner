@@ -72,6 +72,26 @@
                             in selected %}checked{% endif %}>
                         {% endif %}
 
+                        <!-- Kebab Menu Button -->
+                        <div class="kebab-menu-container">
+                            <button type="button" class="kebab-button" data-filepath="{{ file.full_path }}">
+                                <span class="kebab-dots">⋮</span>
+                            </button>
+                            <div class="kebab-dropdown">
+                                {% if file.is_dir %}
+                                <button type="button" class="kebab-option" data-action="open">📂 Open</button>
+                                <button type="button" class="kebab-option" data-action="select">✓ Select</button>
+                                <button type="button" class="kebab-option" data-action="rename">✏️ Rename</button>
+                                <button type="button" class="kebab-option" data-action="delete">🗑️ Delete</button>
+                                {% else %}
+                                <button type="button" class="kebab-option" data-action="select">✓ Select</button>
+                                <!-- <button type="button" class="kebab-option" data-action="download">⬇️ Download</button> -->
+                                <button type="button" class="kebab-option" data-action="rename">✏️ Rename</button>
+                                <button type="button" class="kebab-option" data-action="delete">🗑️ Delete</button>
+                                {% endif %}
+                            </div>
+                        </div>
+
                         <div class="file-icon">
                             {% if file.file_type == "folder" %}
                             📁

@@ -15,6 +15,9 @@ document.querySelectorAll('.file-card').forEach(card => {
     const isDir = card.dataset.isDir === 'true';
 
     card.addEventListener('click', async (e) => {
+        if (e.target.closest('.kebab-menu-container')) {
+            return;
+        }
         // If clicking a link, allow normal behavior
         if (e.target.tagName === "A") {
             return;
@@ -417,5 +420,159 @@ async function removeFromSelection(filepath) {
     catch (error) {
         console.error('Error removing from selection:', error);
         alert('Error removing from selection. Please try again.');
+    }
+}
+
+// ============================================
+// Kebab Menu functionality
+// ============================================
+let currentOpenKebab = null;
+
+// Toggle kebab menus - use event delegation on document
+document.addEventListener('click', (e) => {
+    // Check if click is on kebab button or its child (the dots span)
+    const kebabButton = e.target.closest('.kebab-button');
+
+    if (kebabButton) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const dropdown = kebabButton.nextElementSibling;
+        const currentCard = kebabButton.closest('.file-card'); // Get the card
+
+        // 1. Close any OTHER open kebab menus first
+        if (currentOpenKebab && currentOpenKebab !== dropdown) {
+            currentOpenKebab.classList.remove('show');
+            // Remove z-index boost from the previous card
+            currentOpenKebab.closest('.file-card').classList.remove('menu-active');
+        }
+
+        // 2. Toggle THIS dropdown
+        dropdown.classList.toggle('show');
+
+        // 3. Toggle the z-index class on the parent card
+        if (dropdown.classList.contains('show')) {
+            currentCard.classList.add('menu-active');
+            currentOpenKebab = dropdown;
+        } else {
+            currentCard.classList.remove('menu-active');
+            currentOpenKebab = null;
+        }
+
+        return;
+    }
+
+    // If we clicked on a kebab option, do nothing (let the other handler work)
+    if (e.target.closest('.kebab-option')) {
+        return;
+    }
+
+    // 4. Click outside - close active menu and reset card z-index
+    if (currentOpenKebab) {
+        console.log('Closing kebab menu (clicked outside)');
+        currentOpenKebab.classList.remove('show');
+
+        // Remove the class from the card to reset stacking order
+        currentOpenKebab.closest('.file-card').classList.remove('menu-active');
+
+        currentOpenKebab = null;
+    }
+});
+
+// Handle kebab menu options
+document.addEventListener('click', async (e) => {
+    const option = e.target.closest('.kebab-option');
+
+    if (option) {
+        console.log('Kebab option clicked:', option.dataset.action);
+        e.preventDefault();
+        e.stopPropagation();
+
+        const action = option.dataset.action;
+        const container = option.closest('.kebab-menu-container');
+        const dropdown = container.querySelector('.kebab-dropdown');
+        const card = option.closest('.file-card');
+        const filepath = card.dataset.filepath;
+        const isDir = card.dataset.isDir === 'true';
+        const checkbox = card.querySelector('input[type="checkbox"]');
+
+        // Close the dropdown
+        dropdown.classList.remove('show');
+        currentOpenKebab = null;
+
+        // Handle different actions
+        switch (action) {
+            case 'select':
+                checkbox.checked = !checkbox.checked;
+                card.classList.toggle('selected', checkbox.checked);
+                updateSelectionCount();
+                const selectAction = checkbox.checked ? 'add' : 'remove';
+                await updateServerSelection(selectAction, filepath, checkbox, card);
+                break;
+
+            case 'open':
+                if (isDir) {
+                    const link = card.querySelector('a');
+                    if (link) {
+                        window.location.href = link.href;
+                    }
+                }
+                break;
+
+            case 'delete':
+                const filename = filepath.split('/').pop() || filepath.split('\\').pop();
+                if (confirm(`Are you sure you want to delete "${filename}"?`)) {
+                    // Add to selection and trigger delete
+                    checkbox.checked = true;
+                    card.classList.add('selected');
+                    await updateServerSelection('add', filepath, checkbox, card);
+                    document.getElementById('delete_input').value = 'delete';
+                    document.getElementById('fileForm').submit();
+                }
+                break;
+
+            case 'rename':
+                const currentName = filepath.replace(/\\/g, '/').split('/').pop();
+
+                const newName = prompt('Enter new name:', currentName);
+                if (newName && newName !== currentName) {
+                    await renameFile(filepath, newName);
+                }
+                break;
+
+            case 'download':
+                alert('Download functionality - to be implemented');
+                // You can implement download here
+                break;
+
+            default:
+                console.log('Unknown action:', action);
+        }
+    }
+});
+
+// Rename function (you'll need to add a backend route for this)
+async function renameFile(filepath, newName) {
+    try {
+        const response = await fetch('/rename', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                filepath: filepath,
+                new_name: newName
+            })
+        });
+
+        if (response.ok) {
+            alert('File renamed successfully');
+            location.reload();
+        } else {
+            alert('Failed to rename file');
+        }
+    } catch (error) {
+        console.error('Error renaming file:', error);
+        alert('Error renaming file');
     }
 }
