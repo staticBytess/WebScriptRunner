@@ -122,6 +122,15 @@ def index(req_path):
     return render_template("index.html", files=files, current_path=req_path, selected=list(selected), scripts=scripts)
 
 
+# RENAME
+@main.route("/rename", methods=['POST'])
+def rename():
+    data = request.get_json()
+    curr_filepath = data.get('filepath')
+    new_name = data.get('new_name')
+    rename_file(curr_filepath, new_name)
+    return "OK", 200
+
 # LOGS
 @main.route("/logs")
 def show_logs():

@@ -114,19 +114,41 @@ def write_log(msg):
     with open(current_app.config["LOG_PATH"], "a", encoding="utf-8") as log:
         log.write(msg)
 
+def safe_file_name(name):
+    name = re.sub(r'[\/\\:*?"<>|]', '_', name) # Remove any unsafe characters
+    return name.strip('. ') # Remove leading/trailing dots and spaces
 
 def create_folder(fname, path):
-    if fname:
-        # Remove any unsafe characters
-        fname = re.sub(r'[\/\\:*?"<>|]', '_', fname)
-        fname = fname.strip('. ')  # Remove leading/trailing dots and spaces
-        
-        if fname:  # Make sure it's not empty after sanitization
-            new_folder_path = Path(os.path.join(path, fname))
-            if new_folder_path.exists():
-                write_log(f"Folder '{fname}' already exists")
-            else:
-                new_folder_path.mkdir(parents=True, exist_ok=True)
-                write_log(f"Created new folder: {fname}")
+    if safe_file_name(fname):  # Make sure name is safe and not empty after sanitization
+        new_folder_path = Path(os.path.join(path, fname))
+        if new_folder_path.exists():
+            write_log(f"Folder '{fname}' already exists")
         else:
-            write_log("Invalid folder name provided")
+            new_folder_path.mkdir(parents=True, exist_ok=True)
+            write_log(f"Created new folder: {fname}")
+    else:
+        write_log("Invalid folder name provided")
+
+def rename_file(curr, new):
+    curr_file = Path(curr)
+    parent_dir = curr_file.parent
+    
+    # 1. Sanitize ONLY the new filename (NOT the path)
+    # Ensure 'new' is just "file.txt", not "/path/to/file.txt"
+    clean_name = safe_file_name(new)
+    
+    # 2. Combine the old parent folder with the new clean name
+    new_file_path = parent_dir / clean_name
+    
+    try:
+        # 3. Rename
+        curr_file.rename(new_file_path)
+        write_log(f"File '{curr_file.name}' renamed to '{clean_name}' successfully.")
+    except FileNotFoundError:
+        write_log(f"File not found: {curr}")
+    except FileExistsError:
+        write_log(f"Cannot rename: '{clean_name}' already exists.")
+    except Exception as e:
+        write_log(f"Error renaming file: {str(e)}")
+
+        
