@@ -71,7 +71,7 @@ def index(req_path):
                 clear_selected_files()
             return redirect(url_for('main.index', req_path=req_path))
         
-        if 'delete_single_file' in request.form:
+        if request.form.get('delete_single_file'):
             target_file = request.form.get('delete_single_file')
             if target_file:
                 remove_selected_file(target_file)
@@ -82,29 +82,29 @@ def index(req_path):
         if 'process' in request.form:
             # Double-check that we're not also deleting
             if request.form.get('delete') == 'delete':
-                write_log("ERROR: Both process and delete were triggered. Ignoring request.\n")
+                write_log("ERROR: Both process and delete were triggered. Ignoring request.")
                 return redirect(url_for('main.index', req_path=req_path))
                 
             process_targets = get_selected_files()
             selected_script = request.form.get("selected_script", "").strip()
             
             if not selected_script:
-                write_log("No script selected\n")
+                write_log("No script selected")
                 return redirect(url_for('main.index', req_path=req_path))
             
             try:
-                write_log(f"\n{'='*50}\nStarting script: {selected_script}\nFiles to process: {len(process_targets)}\n{'='*50}\n")
+                write_log(f"{'='*20}\nStarting script: {selected_script}\nFiles to process: {len(process_targets)}\n{'='*20}")
                 
                 module_name = selected_script.replace(".py", "")
                 mod = importlib.import_module(f"app.scripts.{module_name}")
 
                 if hasattr(mod, "main"):
                     mod.main(list(process_targets))
-                    write_log(f"✓ Successfully processed {len(process_targets)} files with {selected_script}\n")
+                    write_log(f"✓ Successfully processed {len(process_targets)} files with {selected_script}")
                 else:
-                    write_log(f"✗ Script '{selected_script}' does NOT define main()\n")
+                    write_log(f"✗ Script '{selected_script}' does NOT define main()")
             except Exception as e:
-                write_log(f"✗ Error running script '{selected_script}': {str(e)}\n")
+                write_log(f"✗ Error running script '{selected_script}': {str(e)}")
                 import traceback
                 write_log(traceback.format_exc())
 
@@ -118,7 +118,7 @@ def index(req_path):
         
         if 'move_here' in request.form:
             if not get_selected_files():
-                write_log("No files selected\n")
+                write_log("No files selected")
             else:
                 move_files(abs_path)
             return redirect(url_for('main.index', req_path=req_path))

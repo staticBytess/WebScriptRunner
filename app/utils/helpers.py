@@ -14,16 +14,16 @@ def del_files(full_paths):
         if os.path.exists(full_path):
             try:
                 send2trash(full_path)
-                msg = f'✓ Deleted: "{full_path}"\n'
+                msg = f'✓ Deleted: "{full_path}"'
                 deleted_count += 1
             except Exception as e:
-                msg = f'✗ Error deleting "{full_path}": {str(e)}\n'
+                msg = f'✗ Error deleting "{full_path}": {str(e)}'
         else:
-            msg = f'✗ File not found: "{full_path}"\n'
+            msg = f'✗ File not found: "{full_path}"'
 
         write_log(msg)
     
-    write_log(f"\nTotal deleted: {deleted_count}/{len(full_paths)}\n{'='*50}\n")
+    write_log(f"Total deleted: {deleted_count}/{len(full_paths)}\n{'='*20}")
 
 
 
@@ -65,6 +65,10 @@ def get_selected_files():
     
     with open(current_app.config["SELECTION_FILE"], "r", encoding="utf-8") as f:
         return set(line.strip() for line in f if line.strip())
+    
+def is_selected(filepath):
+    list = get_selected_files()
+    return filepath in list
 
 
 def add_selected_file(filepath):
@@ -84,6 +88,10 @@ def update_selected_file_path(file_path, new_dir):
     remove_selected_file(file_path)
     fname = os.path.basename(file_path)
     new_path = os.path.join(new_dir, fname)
+    add_selected_file(new_path)
+
+def rename_selected_file(old_path, new_path):
+    remove_selected_file(old_path)
     add_selected_file(new_path)
 
 def save_selected_files(file_paths):
@@ -119,7 +127,7 @@ def get_available_scripts():
 def write_log(msg):
     os.makedirs("scripts", exist_ok=True)
     with open(current_app.config["LOG_PATH"], "a", encoding="utf-8") as log:
-        log.write(msg)
+        log.write(str(msg)+'\n')
 
 def safe_file_name(name):
     name = re.sub(r'[\/\\:*?"<>|]', '_', name) # Remove any unsafe characters
@@ -143,13 +151,12 @@ def rename_file(curr, new):
     # 1. Sanitize ONLY the new filename (NOT the path)
     # Ensure 'new' is just "file.txt", not "/path/to/file.txt"
     clean_name = safe_file_name(new)
-    
-    # 2. Combine the old parent folder with the new clean name
     new_file_path = parent_dir / clean_name
     
     try:
-        # 3. Rename
         curr_file.rename(new_file_path)
+        if is_selected(curr):
+            rename_selected_file(str(curr_file), str(new_file_path))
         write_log(f"File '{curr_file.name}' renamed to '{clean_name}' successfully.")
     except FileNotFoundError:
         write_log(f"File not found: {curr}")
@@ -177,7 +184,7 @@ def move_files(new_path):
             skipped += 1
             continue
 
-    write_log(f"Moved {count} files to {new_path}\n")
+    write_log(f"Moved {count} files to {new_path}")
     if skipped > 0:
         write_log("Ensure files are not being used by another app or process.")
 
